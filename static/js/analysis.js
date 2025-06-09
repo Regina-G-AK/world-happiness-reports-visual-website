@@ -516,6 +516,7 @@ function updatePCAScatter() {
         pcaScatterChart.clear();
         pcaScatterChart.setOption({
             title: { text: `${year}年国家聚类分析 (PCA)`, left: 'center' },
+            /*
             graphic: {
                 type: 'text',
                 left: 'center',
@@ -526,6 +527,7 @@ function updatePCAScatter() {
                     font: '14px Microsoft YaHei'
                 }
             }
+            */
         });
         return;
     }
@@ -584,19 +586,6 @@ function updatePCAScatter() {
                     type: 'dashed'
                 }
             }
-        },
-        visualMap: {
-            min: minHappiness, // 使用实际数据的最小值
-            max: maxHappiness, // 使用实际数据的最大值
-            dimension: 'happiness',
-            orient: 'horizontal',
-            left: 'center',
-            bottom: '5%',
-            calculable: true,
-            inRange: {
-                color: ['#e0f3f8', '#2c7fb8'] // 浅蓝到深蓝
-            },
-            text: ['高', '低']
         },
         series: [{
             type: 'scatter',
@@ -773,6 +762,7 @@ function updateTrajectoryChart() {
         trajectoryChart.clear();
         trajectoryChart.setOption({
             title: { text: '国家幸福指数排名变化趋势', left: 'center' },
+            /*
             graphic: {
                 type: 'text',
                 left: 'center',
@@ -783,6 +773,7 @@ function updateTrajectoryChart() {
                     font: '14px Microsoft YaHei'
                 }
             }
+            */
         });
         return;
     }

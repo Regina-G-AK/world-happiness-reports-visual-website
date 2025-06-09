@@ -100,7 +100,7 @@ function updateWorldMap() {
             realtime: false,
             calculable: true,
             inRange: {
-                color: ['#e0f3f8', '#2c7fb8']
+                color: ['#f3f3f9', '#444693']
             }
         },
         series: [{
