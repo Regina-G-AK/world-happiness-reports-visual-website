@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界幸福指数深度分析</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4/map/js/world.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container-fluid {
+            padding: 20px;
+        }
+        .main-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .chart-container {
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .nav-link {
+            color: #333;
+            font-weight: bold;
+        }
+        .nav-link.active {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        .nav-tabs {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #007bff;
+            color: #007bff;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #007bff;
+            color: #007bff;
+            background-color: transparent;
+        }
+        .chart-module {
+            display: none;
+        }
+        .chart-module.active {
+            display: block;
+        }
+        .control-section {
+            display: none;
+            margin-bottom: 15px;
+        }
+        .control-section.active {
+            display: block !important;
+        }
+        .btn-update {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .selected-countries {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            min-height: 40px;
+        }
+        .selected-country {
+            display: inline-block;
+            margin: 2px;
+            padding: 2px 8px;
+            background: #e9ecef;
+            border-radius: 3px;
+        }
+        .selected-country .remove {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        select[multiple] {
+            height: 120px;
+        }
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .btn-back {
+            padding: 8px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="main-title">世界幸福指数深度分析</h1>
+        
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="/">数据概览</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/analysis">深度分析</a>
+            </li>
+            <li class="nav-item">
+                <a href="/correlation" class="nav-link">相关性分析</a>
+            </li>
+        </ul>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="control-panel">
+                    <h4>分析控制</h4>
+                    
+                    <!-- 分析类型选择 -->
+                    <div class="control-section active" id="analysis-type-section">
+                        <div class="form-group">
+                            <label for="analysis-type">选择分析类型</label>
+                            <select class="form-control" id="analysis-type">
+                                <option value="time-series-radar">时序变化分析</option>
+                                <option value="comparison-radar">国家对比分析</option>
+                                <option value="pca-trajectory">聚类与排名趋势分析</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 时序分析控制 -->
+                    <div class="control-section" id="time-series-controls">
+                        <div class="form-group">
+                            <label for="country-select">选择国家</label>
+                            <select class="form-control" id="country-select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 对比分析控制 -->
+                    <div class="control-section" id="comparison-controls">
+                        <div class="form-group">
+                            <label for="compare-year">选择年份</label>
+                            <select class="form-control" id="compare-year">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="country-multi-select">选择对比国家</label>
+                            <select class="form-control" id="country-multi-select" multiple>
+                            </select>
+                            <small class="form-text text-muted">按住Ctrl键可多选，最多选择5个国家</small>
+                        </div>
+                        <div class="selected-countries" id="selected-countries-list">
+                        </div>
+                    </div>
+
+                    <!-- PCA分析控制 -->
+                    <div class="control-section" id="pca-controls">
+                        <div class="form-group">
+                            <label for="pca-year">选择年份</label>
+                            <select class="form-control" id="pca-year">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pca-countries">选择分析国家</label>
+                            <select class="form-control" id="pca-countries" multiple>
+                            </select>
+                            <small class="form-text text-muted">按住Ctrl键可多选</small>
+                        </div>
+                    </div>
+
+                    <!-- 更新按钮 -->
+                    <button class="btn btn-primary btn-update" id="update-charts">更新图表</button>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <!-- 时序分析模块 -->
+                <div id="module-time-series-radar" class="chart-module">
+                    <div class="module-header">
+                        <div class="module-title">时序变化分析</div>
+                        <button class="btn-back" onclick="showAnalysisTypeSelection()">返回选择</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="trend-chart" class="chart-container"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="radar-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 对比分析模块 -->
+                <div id="module-comparison-radar" class="chart-module">
+                    <div class="module-header">
+                        <div class="module-title">国家对比分析</div>
+                        <button class="btn-back" onclick="showAnalysisTypeSelection()">返回选择</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="comparison-radar" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PCA分析模块 -->
+                <div id="module-pca-trajectory" class="chart-module">
+                    <div class="module-header">
+                        <div class="module-title">聚类与排名趋势分析</div>
+                        <button class="btn-back" onclick="showAnalysisTypeSelection()">返回选择</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="pca-scatter" class="chart-container"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="trajectory-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/analysis.js"></script>
+</body>
+</html>

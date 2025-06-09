@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界幸福指数相关性分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px; /* Consistent with analysis.html */
+            background-color: #f0f2f5;
+        }
+        .container-fluid { /* Consistent with analysis.html */
+            padding: 20px;
+        }
+        .main-title { /* Consistent with analysis.html */
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .nav-link {
+            color: #333;
+            font-weight: bold;
+        }
+        .nav-link.active {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        /* Navigation Tabs styles, consistent with analysis.html */
+        .nav-tabs {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #007bff;
+            color: #007bff;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #007bff;
+            color: #007bff;
+            background-color: transparent;
+        }
+        /* Control Panel styles, consistent with analysis.html */
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group { /* Consistent with analysis.html */
+            margin-bottom: 1rem;
+        }
+        .control-group label { /* Original label style, keep it */
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .control-group select { /* Original select style, keep it */
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        /* Chart Grid and Module styles */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 0; /* Remove padding from here as container-fluid handles it */
+        }
+        .chart-module {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chart-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        .chart-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .chart-container {
+            padding: 15px;
+        }
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .container { /* This style is no longer relevant for the main layout */
+                flex-direction: column;
+            }
+            .sidebar { /* This style is no longer relevant, replaced by col-md-3 */
+                width: 100%;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="main-title">世界幸福指数相关性分析</h1>
+        
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="/">数据概览</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/analysis">深度分析</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/correlation">相关性分析</a>
+            </li>
+        </ul>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="control-panel">
+                    <h4>分析控制</h4>
+                    <div class="form-group control-group"> <label for="year-select">选择年份：</label>
+                        <select id="year-select" class="form-control">
+                            </select>
+                    </div>
+                    <div class="form-group control-group"> <label for="attribute-select">选择属性：</label>
+                        <select id="attribute-select" class="form-control">
+                            <option value="Freedom">自由</option>
+                            <option value="Generosity">慷慨</option>
+                            <option value="Trust (Government Corruption)">政府信任度</option>
+                            <option value="Social support">社会支持</option>
+                            <option value="Dystopia + residual">反乌托邦</option>
+                            <option value="Economy (GDP per Capita)">人均GDP</option>
+                            <option value="Health (Life Expectancy)">预期寿命</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="charts-grid">
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>亚洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="asia-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>欧洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="europe-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>北美洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="north-america-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>南美洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="south-america-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>非洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="africa-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="chart-module">
+                        <div class="chart-header">
+                            <h2>大洋洲地区</h2>
+                        </div>
+                        <div class="chart-container">
+                            <div id="oceania-chart" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/correlation.js"></script>
+</body>
+</html>
